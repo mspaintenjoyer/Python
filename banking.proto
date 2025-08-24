@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package banking;
+
+service AccountManagement {
+  rpc GetBalance(GetBalanceRequest) returns (BalanceResponse) {}
+  rpc UpdateBalance(UpdateBalanceRequest) returns (BalanceResponse) {}
+}
+
+service Transaction {
+  rpc InitiateTransfer(TransferRequest) returns (TransferResponse) {}
+  rpc GetTransactionHistory(HistoryRequest) returns (HistoryResponse) {}
+}
+
+// Request/Response Messages
+message GetBalanceRequest {
+  string user_id = 1;
+}
+
+message UpdateBalanceRequest {
+  string user_id = 1;
+  double amount = 2;
+  string transaction_id = 3;
+}
+
+message BalanceResponse {
+  string user_id = 1;
+  double balance = 2;
+}
+
+message TransferRequest {
+  string from_user = 1;
+  string to_user = 2;
+  double amount = 3;
+}
+
+message TransferResponse {
+  enum TransferStatus {
+    SUCCESS = 0;
+    INSUFFICIENT_FUNDS = 1;
+    INVALID_ACCOUNT = 2;
+  }
+  TransferStatus status = 1;
+  string transaction_id = 2;
+  string timestamp = 3;
+}
+
+message HistoryRequest {
+  string user_id = 1;
+}
+
+message TransactionRecord {
+  string transaction_id = 1;
+  string counterparty = 2;
+  double amount = 3;
+  string timestamp = 4;
+}
+
+message HistoryResponse {
+  repeated TransactionRecord transactions = 1;
+}
+
+
+//ran pip install grpcio grpcio-tools on cmd to install protoc
+//python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. banking.proto
+
+//banking_pb2.py and banking_pb2_grpc.py
+
+
+python server.py
+python client.py
+netstat -an | find "50051"
+pip install grpcurl
+grpcurl -plaintext localhost:50051 list
